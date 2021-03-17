@@ -1,4 +1,3 @@
-
 const ConcatSource = require('webpack-sources/lib/ConcatSource');
 
 const PLUGIN_NAME = "ModuleFedSingleRuntimePlugin";
@@ -9,11 +8,11 @@ const PLUGIN_NAME = "ModuleFedSingleRuntimePlugin";
 class ModuleFedSingleRuntimePlugin {
   /**
    * @param {object} options
-   * @param {string} [options.fileName= remoteEntry.js] The file name to concat the runtime with
+   * @param {string} [options.filename= remoteEntry.js] The file name to concat the runtime with
    * @param {string} [options.runtime= runtime.js] The runtime to merge
    */
   constructor(options) {
-    this._options = {fileName: 'remoteEntry.js', runtime: 'runtime.js', ...options};
+    this._options = {filename: 'static/runtime/remoteEntry.js', runtime: 'static/chunks/webpack.js', ...options};
   }
   // Define `apply` as its prototype method which is supplied with compiler as its argument
   apply(compiler) {
@@ -23,10 +22,10 @@ class ModuleFedSingleRuntimePlugin {
     // Specify the event hook to attach to
     compiler.hooks.emit.tap(PLUGIN_NAME, (compilation) => {
       const { assets } = compilation;
-      const runtime  = assets[this._options.runtime];
-      const remoteEntry = assets[this._options.fileName];
+      const runtime = assets[this._options.runtime] || assets['webpack-runtime.js'];
+      const remoteEntry = assets[this._options.filename];
       const mergedSource = new ConcatSource(runtime, remoteEntry);
-      assets[this._options.fileName] = mergedSource;
+      assets[this._options.filename] = mergedSource;
     });
   }
 };
